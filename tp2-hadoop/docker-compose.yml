@@ -1,0 +1,41 @@
+services: # Déclare la section des services gérés par Docker Compose.
+  namenode: # Définit le service correspondant au NameNode HDFS.
+    image: tp2-hadoop:3.5.0 # Utilise l'image Docker personnalisée tp2-hadoop version 3.5.0.
+    container_name: tp2-namenode # Fixe le nom du conteneur NameNode pour l'identifier facilement.
+    hostname: namenode # Définit le nom d'hôte du conteneur NameNode sur le réseau Docker.
+    user: hadoop # Exécute le processus du conteneur avec l'utilisateur hadoop.
+    command: ["namenode"] # Passe l'argument namenode au point d'entrée pour démarrer le service NameNode.
+    ports: # Déclare les redirections de ports entre l'hôte et le conteneur.
+      - "9870:9870" # Expose l'interface web du NameNode sur le port 9870 de l'hôte.
+      - "8020:8020" # Expose le port RPC du NameNode sur le port 8020 de l'hôte.
+    volumes: # Déclare les montages de volumes pour la configuration et les données.
+      - ./config:/opt/hadoop/etc/hadoop:ro # Monte le dossier de configuration local en lecture seule dans le conteneur.
+      - ./data/namenode_name:/data/hdfs/name # Monte le répertoire local des métadonnées du NameNode dans le conteneur.
+    networks: [hdfs-net] # Connecte le service NameNode au réseau Docker hdfs-net.
+
+  datanode1: # Définit le premier service DataNode HDFS.
+    image: tp2-hadoop:3.5.0 # Utilise l'image Docker personnalisée tp2-hadoop version 3.5.0.
+    container_name: tp2-datanode1 # Fixe le nom du conteneur du premier DataNode.
+    hostname: datanode1 # Définit le nom d'hôte du premier DataNode sur le réseau Docker.
+    user: hadoop # Exécute le processus du conteneur avec l'utilisateur hadoop.
+    command: ["datanode"] # Passe l'argument datanode au point d'entrée pour démarrer le service DataNode.
+    depends_on: [namenode] # Indique que ce service dépend du démarrage du service namenode.
+    volumes: # Déclare les montages de volumes pour la configuration et les données.
+      - ./config:/opt/hadoop/etc/hadoop:ro # Monte le dossier de configuration local en lecture seule dans le conteneur.
+      - ./data/datanode1:/data/hdfs/data # Monte le répertoire local des blocs du premier DataNode dans le conteneur.
+    networks: [hdfs-net] # Connecte le premier DataNode au réseau Docker hdfs-net.
+
+  datanode2: # Définit le second service DataNode HDFS.
+    image: tp2-hadoop:3.5.0 # Utilise l'image Docker personnalisée tp2-hadoop version 3.5.0.
+    container_name: tp2-datanode2 # Fixe le nom du conteneur du second DataNode.
+    hostname: datanode2 # Définit le nom d'hôte du second DataNode sur le réseau Docker.
+    user: hadoop # Exécute le processus du conteneur avec l'utilisateur hadoop.
+    command: ["datanode"] # Passe l'argument datanode au point d'entrée pour démarrer le service DataNode.
+    depends_on: [namenode] # Indique que ce service dépend du démarrage du service namenode.
+    volumes: # Déclare les montages de volumes pour la configuration et les données.
+      - ./config:/opt/hadoop/etc/hadoop:ro # Monte le dossier de configuration local en lecture seule dans le conteneur.
+      - ./data/datanode2:/data/hdfs/data # Monte le répertoire local des blocs du second DataNode dans le conteneur.
+    networks: [hdfs-net] # Connecte le second DataNode au réseau Docker hdfs-net.
+
+networks: # Déclare la section des réseaux Docker utilisés par les services.
+  hdfs-net: # Définit le réseau nommé hdfs-net pour la communication entre les conteneurs.

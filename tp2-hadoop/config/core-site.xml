@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?> <!-- Déclare la version XML et l'encodage du document. -->
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?> <!-- Associe une feuille de style XSL optionnelle pour la présentation du XML. -->
+<configuration> <!-- Ouvre l'élément racine contenant les paramètres de configuration Hadoop. -->
+  <property> <!-- Déclare une propriété de configuration. -->
+    <name>fs.defaultFS</name> <!-- Indique le nom de la propriété définissant le système de fichiers par défaut. -->
+    <value>hdfs://namenode:8020</value> <!-- Spécifie l'adresse du NameNode HDFS comme système de fichiers par défaut. -->
+  </property> <!-- Ferme la déclaration de la propriété fs.defaultFS. -->
+</configuration> <!-- Ferme l'élément racine de la configuration. -->
