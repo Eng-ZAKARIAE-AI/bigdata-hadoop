@@ -1,2 +1,11 @@
 *.raw
 *.lock
+what-i-do-in-eniad-tp2/
+tp1/
+
+*.aux
+*.log
+*.tex
+*.out
+
+screenshots/
