@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?> <!-- Déclare la version XML et l'encodage du document. -->
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?> <!-- Associe une feuille de style XSL optionnelle pour la présentation du XML. -->
+<configuration> <!-- Ouvre l'élément racine contenant les paramètres de configuration HDFS. -->
+  <property> <!-- Déclare la propriété de réplication des blocs. -->
+    <name>dfs.replication</name> <!-- Indique le facteur de réplication des blocs dans HDFS. -->
+    <value>2</value> <!-- Définit le nombre de copies de chaque bloc à 2. -->
+  </property> <!-- Ferme la déclaration de la propriété dfs.replication. -->
+  <property> <!-- Déclare la propriété de taille des blocs. -->
+    <name>dfs.blocksize</name> <!-- Indique la taille des blocs utilisés par HDFS. -->
+    <value>8388608</value> <!-- Définit la taille d'un bloc à 8 mébioctets. -->
+  </property> <!-- Ferme la déclaration de la propriété dfs.blocksize. -->
+  <property> <!-- Déclare le répertoire des métadonnées du NameNode. -->
+    <name>dfs.namenode.name.dir</name> <!-- Indique le chemin de stockage des métadonnées du NameNode. -->
+    <value>/data/hdfs/name</value> <!-- Spécifie le dossier local utilisé pour les métadonnées du NameNode. -->
+  </property> <!-- Ferme la déclaration de la propriété dfs.namenode.name.dir. -->
+  <property> <!-- Déclare une propriété de répertoire supplémentaire côté NameNode. -->
+    <name>dfs.namenode.data.dir</name> <!-- Indique un chemin de données associé au NameNode dans cette configuration. -->
+    <value>/data/hdfs/data</value> <!-- Spécifie le dossier associé à cette propriété dans le projet. -->
+  </property> <!-- Ferme la déclaration de la propriété dfs.namenode.data.dir. -->
+  <property> <!-- Déclare le répertoire de stockage des blocs des DataNodes. -->
+    <name>dfs.datanode.data.dir</name> <!-- Indique le chemin de stockage des blocs sur les DataNodes. -->
+    <value>/data/hdfs/data</value> <!-- Spécifie le dossier local utilisé pour les blocs des DataNodes. -->
+  </property> <!-- Ferme la déclaration de la propriété dfs.datanode.data.dir. -->
+</configuration> <!-- Ferme l'élément racine de la configuration HDFS. -->
