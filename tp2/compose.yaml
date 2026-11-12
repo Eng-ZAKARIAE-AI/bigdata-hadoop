@@ -1,0 +1,85 @@
+name: tp2-hadoop
+
+services:
+  initialisation:
+    image: apache/hadoop:3.5.0
+    profiles: ["setup"]
+    user: "0:0"
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - "chown -R 1001:100 /data/hdfs/name /data/hdfs/dn1 /data/hdfs/dn2 /data/hdfs/dn3"
+    volumes:
+      - ./data/namenode:/data/hdfs/name
+      - ./data/datanode1:/data/hdfs/dn1
+      - ./data/datanode2:/data/hdfs/dn2
+      - ./data/datanode3:/data/hdfs/dn3
+
+  namenode:
+    image: apache/hadoop:3.5.0
+    container_name: tp2-namenode
+    hostname: namenode
+    entrypoint: ["/usr/local/bin/dumb-init", "--"]
+    command: ["hdfs", "namenode"]
+    environment:
+      HADOOP_CONF_DIR: /opt/hadoop/etc/hadoop
+    ports:
+      - "127.0.0.1:9870:9870"
+    volumes:
+      - ./data/namenode:/data/hdfs/name
+      - ./config/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml:ro
+      - ./config/hdfs-site.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml:ro
+    networks: [hadoop-net]
+    restart: unless-stopped
+
+  datanode1:
+    image: apache/hadoop:3.5.0
+    container_name: tp2-datanode1
+    hostname: datanode1
+    entrypoint: ["/usr/local/bin/dumb-init", "--"]
+    command: ["hdfs", "datanode"]
+    environment:
+      HADOOP_CONF_DIR: /opt/hadoop/etc/hadoop
+    depends_on: [namenode]
+    volumes:
+      - ./data/datanode1:/data/hdfs/data
+      - ./config/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml:ro
+      - ./config/hdfs-site.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml:ro
+    networks: [hadoop-net]
+    restart: unless-stopped
+
+  datanode2:
+    image: apache/hadoop:3.5.0
+    container_name: tp2-datanode2
+    hostname: datanode2
+    entrypoint: ["/usr/local/bin/dumb-init", "--"]
+    command: ["hdfs", "datanode"]
+    environment:
+      HADOOP_CONF_DIR: /opt/hadoop/etc/hadoop
+    depends_on: [namenode]
+    volumes:
+      - ./data/datanode2:/data/hdfs/data
+      - ./config/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml:ro
+      - ./config/hdfs-site.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml:ro
+    networks: [hadoop-net]
+    restart: unless-stopped
+
+  datanode3:
+    image: apache/hadoop:3.5.0
+    profiles: ["extension"]
+    container_name: tp2-datanode3
+    hostname: datanode3
+    entrypoint: ["/usr/local/bin/dumb-init", "--"]
+    command: ["hdfs", "datanode"]
+    environment:
+      HADOOP_CONF_DIR: /opt/hadoop/etc/hadoop
+    depends_on: [namenode]
+    volumes:
+      - ./data/datanode3:/data/hdfs/data
+      - ./config/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml:ro
+      - ./config/hdfs-site.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml:ro
+    networks: [hadoop-net]
+    restart: unless-stopped
+
+networks:
+  hadoop-net:
+    driver: bridge

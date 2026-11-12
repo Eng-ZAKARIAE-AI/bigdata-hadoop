@@ -1,0 +1,28 @@
+TP2 — Configuration avancée d’un cluster HDFS (VM Ubuntu + Docker Engine)
+
+Pré-requis : Ubuntu 26.04, Docker Engine et Docker Compose installés.
+Hadoop 3.5.0 / Java 17 dans l’image officielle apache/hadoop:3.5.0.
+
+INSTALLATION INITIALE (une seule fois)
+1. Décompresser ce ZIP dans ~/bigdata/tp2-hadoop, en conservant config/.
+2. Dans le terminal : cd ~/bigdata/tp2-hadoop
+3. mkdir -p data/{namenode,datanode1,datanode2,datanode3}
+4. docker pull apache/hadoop:3.5.0
+5. docker compose config
+6. docker compose run --rm --no-deps initialisation
+7. docker compose run --rm --no-deps --entrypoint hdfs namenode namenode -format -nonInteractive
+8. docker compose up -d
+9. docker exec tp2-namenode hdfs dfsadmin -report
+10. Firefox dans Ubuntu : http://localhost:9870
+
+EXTENSION À TROIS DATANODES
+- docker compose --profile extension up -d datanode3
+- docker exec tp2-namenode hdfs dfsadmin -report
+
+ATTENTION : ne jamais reformater le NameNode après la première initialisation.
+Les métadonnées et blocs sont stockés dans data/ ; ne pas supprimer ces dossiers.
+Les fichiers XML sont montés en lecture seule. Après une modification :
+  docker compose --profile extension up -d --force-recreate namenode datanode1 datanode2 datanode3
+
+Fichiers : compose.yaml, config/core-site.xml, config/hdfs-site.xml.
+Le TP est un laboratoire local sans configuration de sécurité de production.
