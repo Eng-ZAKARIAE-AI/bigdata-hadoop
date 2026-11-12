@@ -1,0 +1,104 @@
+% Required in preamble:
+% \usepackage{tikz}  \usetikzlibrary{calc}
+% \usepackage{xcolor}  \usepackage{graphicx}  \usepackage{array}
+% \usepackage[T1]{fontenc}  \usepackage{lmodern}   % needed for the large title size
+%
+% Colors (skip if already defined; \providecolor won't overwrite):
+\providecolor{ENIADNavy}{HTML}{0B1F3A}
+\providecolor{ENIADBlue}{HTML}{1F4E8C}
+\providecolor{ENIADLightBlue}{HTML}{EEF3FA}
+\providecolor{ENIADOrange}{HTML}{F28C28}
+\providecolor{ENIADGray}{HTML}{5B6573}
+\providecolor{ENIADWhite}{HTML}{FFFFFF}
+
+\begin{titlepage}
+\thispagestyle{empty}
+\sffamily
+
+\begin{tikzpicture}[remember picture, overlay]
+
+  % ---------- Background ----------
+  \fill[ENIADWhite] (current page.south west) rectangle (current page.north east);
+
+  % subtle decorative circles (top-right of body, bottom-left)
+  \fill[ENIADLightBlue] ([xshift=1cm,yshift=-6cm] current page.north east) circle (4.5cm);
+  \fill[ENIADLightBlue!60] ([xshift=-1cm,yshift=5cm] current page.south west) circle (3.5cm);
+
+  % ---------- Header band ----------
+  \fill[ENIADNavy]
+    (current page.north west) rectangle ([yshift=-4.2cm] current page.north east);
+  \fill[ENIADOrange]
+    ([yshift=-4.2cm] current page.north west) rectangle ([yshift=-4.45cm] current page.north east);
+
+  \node[anchor=west, text=ENIADWhite, align=left, text width=11cm]
+    at ([xshift=2cm, yshift=-2.1cm] current page.north west)
+    {{\Large\bfseries Université Mohammed Premier}\\[5pt]
+     {\small École Nationale de l'Intelligence Artificielle\\et du Digital --- Berkane}};
+
+  \node[anchor=east, inner sep=0pt]
+    at ([xshift=-2cm, yshift=-2.1cm] current page.north east)
+    {\IfFileExists{logo-eniad.png}
+      {\includegraphics[height=2.8cm]{logo-eniad.png}}
+      {\textcolor{ENIADWhite}{\Huge\bfseries ENIAD}}};
+
+  % ---------- Title block ----------
+  \node[anchor=north, text=ENIADOrange, font=\bfseries\small, align=center]
+    at ([yshift=-6.6cm] current page.north)
+    {C O M P T E \ \ R E N D U \ \ D E \ \ T R A V A U X \ \ P R A T I Q U E S};
+
+  \node[anchor=north, text=ENIADNavy, font=\fontsize{34}{40}\selectfont\bfseries, align=center]
+    at ([yshift=-7.7cm] current page.north)
+    {BIG DATA};
+
+  \fill[ENIADOrange, rounded corners=1pt]
+    ([xshift=-1.5cm, yshift=-9.9cm] current page.north)
+    rectangle ([xshift=1.5cm, yshift=-10.05cm] current page.north);
+
+  \node[anchor=north, text=ENIADBlue, font=\Large\bfseries, align=center, text width=15cm]
+    at ([yshift=-10.6cm] current page.north)
+    {Cluster HDFS avec Docker Compose};
+
+  % ---------- TP badge ----------
+  \node[anchor=north, fill=ENIADNavy, text=ENIADWhite, font=\bfseries\Large,
+        minimum width=3.6cm, minimum height=1.1cm, rounded corners=5pt]
+    at ([yshift=-13.2cm] current page.north)
+    {TP\,2};
+
+  % ---------- Info card ----------
+  \node[anchor=north, name=card, fill=ENIADLightBlue, inner xsep=22pt, inner ysep=16pt,
+        text width=11.8cm, align=left]
+    at ([yshift=-15.6cm] current page.north)
+    {%
+      \renewcommand{\arraystretch}{1.7}%
+      \begin{tabular}{@{}p{3.3cm}p{8.0cm}@{}}
+        {\color{ENIADGray}\footnotesize\bfseries RÉALISÉ PAR} &
+          {\color{ENIADNavy}\large\bfseries Zakariae El Haddouchi} \\
+        {\color{ENIADGray}\footnotesize\bfseries FILIÈRE} &
+          {\color{ENIADNavy}\normalsize Intelligence Artificielle (cycle ingénieur)} \\
+        {\color{ENIADGray}\footnotesize\bfseries MODULE} &
+          {\color{ENIADNavy}\normalsize Big Data} \\
+        {\color{ENIADGray}\footnotesize\bfseries PROFESSEUR} &
+          {\color{ENIADNavy}\normalsize\bfseries Phd. AL ALAMI NABIL} \\
+      \end{tabular}%
+    };
+  \fill[ENIADOrange] (card.north west) rectangle ([xshift=0.18cm] card.south west);
+
+  % ---------- Footer ----------
+  \fill[ENIADNavy]
+    (current page.south west) rectangle ([yshift=1.8cm] current page.south east);
+  \fill[ENIADOrange]
+    ([yshift=1.8cm] current page.south west) rectangle ([yshift=1.95cm] current page.south east);
+  \node[text=ENIADWhite, font=\small\bfseries, anchor=center]
+    at ([yshift=0.9cm] current page.south)
+    {Année universitaire 2026\,--\,2027};
+
+  \node[anchor=north, align=center, text=ENIADNavy]
+    at ([yshift=-23.5cm] current page.north)
+    {{\footnotesize\bfseries CODE SOURCE}\\[3pt]
+     {\footnotesize\href{https://github.com/Eng-ZAKARIAE-AI/bigdata-hadoop}
+       {github.com/Eng-ZAKARIAE-AI/bigdata-hadoop}}};
+
+\end{tikzpicture}
+
+\end{titlepage}
+\clearpage

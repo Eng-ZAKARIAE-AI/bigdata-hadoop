@@ -1,0 +1,355 @@
+\documentclass[11pt,a4paper]{article}
+
+% ---------- Encodage et langue ----------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[french]{babel}
+\usepackage{microtype}
+
+% ---------- Mise en page ----------
+\usepackage[a4paper, margin=2.5cm, headheight=24pt, footskip=1.2cm]{geometry}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{float}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{caption}
+\usepackage{listings}
+\usepackage[hidelinks]{hyperref}
+
+\linespread{1.1}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+
+% ---------- Couleurs ENIAD ----------
+\definecolor{ENIADNavy}{HTML}{12304A}
+\definecolor{ENIADOrange}{HTML}{E87924}
+\definecolor{ENIADBlue}{HTML}{2878A8}
+\definecolor{ENIADGray}{HTML}{5D6872}
+\definecolor{ENIADWhite}{HTML}{FFFFFF}
+\definecolor{ENIADLightBlue}{HTML}{EAF3F8}
+\definecolor{CodeGreen}{HTML}{3C7A4E}
+
+% ---------- En-tête et pied de page ----------
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.8pt}
+\renewcommand{\footrulewidth}{0pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{ENIADOrange}\leaders\hrule height \headrulewidth\hfill}}
+\fancyhead[L]{\small\sffamily\color{ENIADGray} Big Data \textbullet\ TP\,2}
+\fancyhead[R]{\small\sffamily\color{ENIADGray} Zakariae El Haddouchi}
+\fancyfoot[C]{\small\sffamily\color{ENIADNavy}\thepage}
+
+% ---------- Titres de section ----------
+\titleformat{\section}[block]
+  {\sffamily\Large\bfseries\color{ENIADNavy}}
+  {\textcolor{ENIADOrange}{Exercice~\thesection}\hspace{0.5em}\textcolor{ENIADOrange}{|}}
+  {0.6em}
+  {}
+  [\vspace{3pt}{\color{ENIADOrange}\titlerule[1pt]}]
+\titlespacing*{\section}{0pt}{20pt}{10pt}
+
+% ---------- Légendes ----------
+\addto\captionsfrench{\renewcommand{\figurename}{Fig.}}
+\captionsetup{
+  font={small,rm,color=ENIADGray},
+  labelfont={up,color=ENIADOrange},
+  labelsep=colon,
+  skip=6pt
+}
+
+% ---------- Code ----------
+\lstdefinestyle{eniad}{
+  language=Python,
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{ENIADBlue}\bfseries,
+  stringstyle=\color{ENIADOrange},
+  commentstyle=\color{CodeGreen}\itshape,
+  numbers=left,
+  numberstyle=\tiny\color{ENIADGray},
+  numbersep=8pt,
+  backgroundcolor=\color{ENIADLightBlue!45},
+  frame=leftline,
+  rulecolor=\color{ENIADOrange},
+  framerule=2pt,
+  framesep=6pt,
+  xleftmargin=22pt,
+  framexleftmargin=18pt,
+  breaklines=true,
+  showstringspaces=false,
+  columns=fullflexible,
+  aboveskip=4pt,
+  belowskip=8pt,
+  literate=
+    {é}{{\'e}}1 {è}{{\`e}}1 {ê}{{\^e}}1 {à}{{\`a}}1 {â}{{\^a}}1
+    {ç}{{\c c}}1 {î}{{\^\i}}1 {ô}{{\^o}}1 {û}{{\^u}}1 {ù}{{\`u}}1
+    {É}{{\'E}}1 {’}{{'}}1
+}
+\lstset{style=eniad}
+
+% Nom de fichier affiché au-dessus d'un bloc de code
+\newcommand{\fichier}[1]{%
+  \par\medskip\noindent
+  {\sffamily\small\bfseries\color{ENIADNavy}%
+   \colorbox{ENIADLightBlue}{\strut\ \texttt{#1}\ }}%
+  \par\nopagebreak\vspace{-2pt}}
+
+% Capture d'écran (cadre de remplacement si l'image est absente)
+\newcommand{\rapportcapture}[2]{%
+  \begin{figure}[H]
+    \centering
+    \IfFileExists{#1}{%
+      \fbox{\includegraphics[width=0.9\linewidth]{#1}}%
+    }{%
+      \fcolorbox{ENIADBlue!50}{ENIADLightBlue}{%
+        \parbox[c][4cm][c]{0.82\linewidth}{\centering\sffamily\color{ENIADGray}
+          Capture à insérer\\[2pt]{\footnotesize\ttfamily\detokenize{#1}}}}%
+    }
+    \caption{#2}
+  \end{figure}}
+
+\title{TP2}
+\author{}
+\date{}
+
+\begin{document}
+
+\input{cover-rapport-tp-.tex}
+
+\section{Présentation du cluster HDFS}
+
+Ce TP vise à déployer un cluster Hadoop HDFS minimal (1 NameNode + 2 DataNodes) en utilisant Docker Compose. Le cluster repose sur l'image officielle \texttt{apache/hadoop:3.5.0}, avec une configuration personnalisée montée en volume.
+
+\subsection{Structure du projet}
+
+\begin{itemize}
+  \item \texttt{Dockerfile}
+  \item \texttt{docker-compose.yml}
+  \item \texttt{config/} : \texttt{core-site.xml}, \texttt{hdfs-site.xml}
+  \item \texttt{data/} : \texttt{namenode\_name/}, \texttt{datanode1/}, \texttt{datanode2/}
+  \item \texttt{run-hdfs.sh}
+  \item \texttt{starter.sh}
+  \item \texttt{hadoop-wrapper.sh}
+  \item \texttt{README.md}
+\end{itemize}
+
+\paragraph{Description des composants.}
+\begin{itemize}
+  \item \texttt{Dockerfile} : construit l'image \texttt{tp2-hadoop:3.5.0} à partir de \texttt{apache/hadoop:3.5.0}, copie les fichiers de configuration Hadoop et définit \texttt{hdfs} comme point d'entrée.
+  \item \texttt{docker-compose.yml} : orchestre les trois services \texttt{namenode}, \texttt{datanode1} et \texttt{datanode2} sur le réseau \texttt{hdfs-net}.
+  \item \texttt{config/core-site.xml} : définit le système de fichiers par défaut (\texttt{fs.defaultFS} = \texttt{hdfs://namenode:8020}).
+  \item \texttt{config/hdfs-site.xml} : configure la réplication, la taille des blocs et les répertoires de stockage.
+  \item \texttt{data/} : répertoires locaux montés dans les conteneurs pour persister les métadonnées et les blocs HDFS.
+\end{itemize}
+
+
+\section{Configuration HDFS}
+
+\fichier{config/core-site.xml}
+\begin{lstlisting}[language=XML]
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <property>
+    <name>fs.defaultFS</name>
+    <value>hdfs://namenode:8020</value>
+  </property>
+</configuration>
+\end{lstlisting}
+
+\fichier{config/hdfs-site.xml}
+\begin{lstlisting}[language=XML]
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <property>
+    <name>dfs.replication</name>
+    <value>2</value>
+  </property>
+  <property>
+    <name>dfs.blocksize</name>
+    <value>8388608</value>
+  </property>
+  <property>
+    <name>dfs.namenode.name.dir</name>
+    <value>/data/hdfs/name</value>
+  </property>
+  <property>
+    <name>dfs.datanode.data.dir</name>
+    <value>/data/hdfs/data</value>
+  </property>
+</configuration>
+\end{lstlisting}
+
+\paragraph{Interprétation des paramètres.}
+\begin{itemize}
+  \item \texttt{dfs.replication = 2} : chaque bloc est répliqué sur 2 DataNodes, ce qui correspond au nombre de DataNodes du cluster.
+  \item \texttt{dfs.blocksize = 8\,388\,608} : la taille d'un bloc HDFS est fixée à 8\,Mio (au lieu des 128\,Mio par défaut), ce qui facilite les tests pédagogiques avec de petits fichiers.
+  \item \texttt{dfs.namenode.name.dir = /data/hdfs/name} : les métadonnées du NameNode (namespace, images fsimage, edit logs) sont persistées dans ce répertoire monté depuis l'hôte.
+  \item \texttt{dfs.datanode.data.dir = /data/hdfs/data} : les blocs de données sont stockés dans ce répertoire sur chaque DataNode.
+  \item \texttt{fs.defaultFS = hdfs://namenode:8020} : l'URI HDFS par défaut pointe vers le NameNode sur le port RPC 8020.
+\end{itemize}
+
+
+\section{Docker Compose : orchestration des services}
+
+\fichier{docker-compose.yml}
+\begin{lstlisting}
+services:
+  namenode:
+    image: tp2-hadoop:3.5.0
+    container_name: tp2-namenode
+    hostname: namenode
+    user: hadoop
+    command: ["namenode"]
+    ports:
+      - "9870:9870"   # UI web NameNode
+      - "8020:8020"   # Port RPC
+    volumes:
+      - ./config:/opt/hadoop/etc/hadoop:ro
+      - ./data/namenode_name:/data/hdfs/name
+    networks: [hdfs-net]
+
+  datanode1:
+    image: tp2-hadoop:3.5.0
+    container_name: tp2-datanode1
+    hostname: datanode1
+    user: hadoop
+    command: ["datanode"]
+    depends_on: [namenode]
+    volumes:
+      - ./config:/opt/hadoop/etc/hadoop:ro
+      - ./data/datanode1:/data/hdfs/data
+    networks: [hdfs-net]
+
+  datanode2:
+    image: tp2-hadoop:3.5.0
+    container_name: tp2-datanode2
+    hostname: datanode2
+    user: hadoop
+    command: ["datanode"]
+    depends_on: [namenode]
+    volumes:
+      - ./config:/opt/hadoop/etc/hadoop:ro
+      - ./data/datanode2:/data/hdfs/data
+    networks: [hdfs-net]
+
+networks:
+  hdfs-net:
+\end{lstlisting}
+
+\paragraph{Analyse de l'orchestration.}
+Le service \texttt{namenode} expose deux ports : \texttt{9870} pour l'interface web d'administration HDFS et \texttt{8020} pour les appels RPC des clients et DataNodes. Les deux DataNodes dépendent du NameNode (\texttt{depends\_on}) et partagent le même réseau Docker \texttt{hdfs-net}, ce qui permet la résolution DNS mutuelle entre les conteneurs (\texttt{namenode}, \texttt{datanode1}, \texttt{datanode2}).
+
+Le montage \texttt{./config:/opt/hadoop/etc/hadoop:ro} écrase les fichiers de configuration inclus dans l'image Docker par ceux du projet, garantissant que le cluster utilise bien notre configuration personnalisée. Les répertoires \texttt{./data/*} assurent la persistance des métadonnées et des blocs entre les redémarrages.
+
+
+\section{Dockerfile : construction de l'image}
+
+\fichier{Dockerfile}
+\begin{lstlisting}
+FROM apache/hadoop:3.5.0
+
+COPY config/core-site.xml /opt/hadoop/etc/hadoop/core-site.xml
+COPY config/hdfs-site.xml /opt/hadoop/etc/hadoop/hdfs-site.xml
+
+ENTRYPOINT ["/opt/hadoop/bin/hdfs"]
+\end{lstlisting}
+
+\paragraph{Explication.}
+L'image de base \texttt{apache/hadoop:3.5.0} fournit une installation complète de Hadoop. Les deux fichiers de configuration sont copiés dans le répertoire \texttt{/opt/hadoop/etc/hadoop/} de l'image, remplaçant les fichiers par défaut. L'écrasement du point d'entrée par \texttt{/opt/hadoop/bin/hdfs} permet de contourner le script \texttt{envtoconf.py} défaillant de l'image officielle : chaque conteneur reçoit directement l'argument \texttt{namenode} ou \texttt{datanode} via la commande \texttt{hdfs}.
+
+
+\section{Démarrage et vérification du cluster}
+
+\subsection{Construction de l'image}
+
+\begin{lstlisting}[language=bash]
+docker build -t tp2-hadoop:3.5.0 .
+\end{lstlisting}
+
+\subsection{Formatage du NameNode (initialisation uniquement)}
+
+\begin{lstlisting}[language=bash]
+docker compose run --rm namenode namenode -format
+\end{lstlisting}
+
+Cette étape crée les métadonnées initiales du NameNode dans \texttt{data/namenode\_name/}. Elle n'est à exécuter qu'une seule fois, lors de la première initialisation du cluster.
+
+\subsection{Démarrage du cluster}
+
+\begin{lstlisting}[language=bash]
+docker compose up -d
+\end{lstlisting}
+
+\rapportcapture
+  {screenshots/cluster-up.png}
+  {Démarrage du cluster HDFS avec Docker Compose}
+
+\subsection{Vérification de l'état}
+
+\begin{lstlisting}[language=bash]
+docker compose ps
+docker compose logs -f namenode
+docker compose logs -f datanode1 datanode2
+\end{lstlisting}
+
+L'interface web du NameNode est accessible à l'adresse \texttt{http://localhost:9870}.
+
+
+\section{Opérations HDFS courantes}
+
+\subsection{Lister le répertoire racine HDFS}
+
+\begin{lstlisting}[language=bash]
+docker compose exec namenode hdfs dfs -ls /
+\end{lstlisting}
+
+\rapportcapture
+  {screenshots/hdfs-ls-root.png}
+  {Liste du répertoire racine HDFS}
+
+\subsection{Créer un répertoire et y déposer un fichier}
+
+\begin{lstlisting}[language=bash]
+docker compose exec namenode hdfs dfs -mkdir -p /tp2/data
+echo "Bonjour HDFS depuis Docker Compose" > local.txt
+docker compose exec namenode hdfs dfs -put local.txt /tp2/data/
+\end{lstlisting}
+
+\subsection{Vérifier la réplication des blocs}
+
+\begin{lstlisting}[language=bash]
+docker compose exec namenode hdfs fsck /tp2/data/local.txt -files -blocks
+\end{lstlisting}
+
+\rapportcapture
+  {screenshots/hdfs-fsck.png}
+  {Vérification de la réplication des blocs avec fsck}
+
+\paragraph{Interprétation.}
+La commande \texttt{fsck} confirme que le fichier \texttt{local.txt} a bien été découpé en blocs et répliqué sur les deux DataNodes conformément à \texttt{dfs.replication = 2}. Chaque bloc apparaît avec deux répliques, ce qui valide le bon fonctionnement de la configuration HDFS du cluster.
+
+
+\section{Arrêt du cluster}
+
+\begin{lstlisting}[language=bash]
+docker compose down
+\end{lstlisting}
+
+Cette commande arrête et supprime les conteneurs, mais les données persistent dans les répertoires locaux \texttt{data/} montés en volume. Un redémarrage avec \texttt{docker compose up -d} restaurera le cluster sans nécessiter de nouveau formatage.
+
+
+\section{Conclusion}
+
+Ce TP a permis de mettre en pratique les concepts fondamentaux de Hadoop HDFS à travers un déploiement Docker Compose :
+\begin{itemize}
+  \item Comprendre l'architecture NameNode / DataNode et le rôle de chaque composant.
+  \item Configurer HDFS via \texttt{core-site.xml} et \texttt{hdfs-site.xml} (réplication, taille de bloc, répertoires de stockage).
+  \item Orchestrer un cluster multi-nœuds avec Docker Compose (réseau partagé, volumes de persistance, dépendances entre services).
+  \item Exécuter des opérations HDFS courantes (\texttt{mkdir}, \texttt{put}, \texttt{ls}, \texttt{fsck}) depuis le conteneur NameNode.
+\end{itemize}
+
+\end{document}
